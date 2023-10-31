@@ -1,0 +1,10 @@
+from fastapi import FastAPI
+import uvicorn
+from api import app as api_app
+
+app = FastAPI()
+
+app.mount("/api", app=api_app)
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
