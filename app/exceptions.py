@@ -17,5 +17,5 @@ class InvalidOTPCodeError(HTTPException):
 class MissingRequestIDException(HTTPException):
     def __init__(self):
         super().__init__(
-            status_code=400, detail="Missing or expired Vonage request ID!"
+            status_code=400, detail="Incorrect or expired Vonage request ID!"
         )

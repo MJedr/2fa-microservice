@@ -1,0 +1,30 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      content-length:
+      - '49'
+      content-type:
+      - application/json
+      host:
+      - testserver
+      user-agent:
+      - testclient
+    method: POST
+    uri: http://testserver/2fa/verify
+  response:
+    content: '{"detail":"Incorrect or expired Vonage request ID!"}'
+    headers:
+      content-length:
+      - '52'
+      content-type:
+      - application/json
+    http_version: HTTP/1.1
+    status_code: 400
+version: 1

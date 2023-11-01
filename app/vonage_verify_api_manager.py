@@ -4,7 +4,7 @@ from functools import cached_property
 
 from exceptions import InvalidOTPCodeError, OTPCodeCreationError
 from httpx import AsyncClient, Response
-from validators import PhoneNumberValidator
+from serializers import PhoneNumber
 
 logger = logging.getLogger(__name__)
 
@@ -24,36 +24,43 @@ class VonageHTTPClient:
             response = await client.post(
                 f"{self.base_url}{endpoint}",
                 headers=headers,
-                data=data,
+                json=data,
                 auth=(self.api_key, self.api_secret),
             )
             return response
 
 
 class VonageVerifyAPIManager:
-    def __init__(self, api_key: str, api_secret: str, root_vonage_url: str = None) -> None:
-        self.api_key = api_key
-        self.api_secret = api_secret
-        self.base_url = root_vonage_url or os.getenv("ROOT_VONAGE_URL")
-
-    @property
-    def url_map(self):
-        return {"new_request": "/newRequest", "verify_request": "/checkCode-auth"}
+    def __init__(
+        self,
+        api_key: str = None,
+        api_secret: str = None,
+        root_vonage_url: str = None,
+        brand_name: str = None,
+    ) -> None:
+        self.api_key = api_key or os.getenv("VONAGE_API_KEY")
+        self.api_secret = api_secret or os.getenv("VONAGE_API_SECRET")
+        self.base_url = root_vonage_url or os.getenv("VONAGE_API_ROOT_URL")
+        self.brand_name = brand_name or os.getenv("VONAGE_API_BRAND_NAME")
 
     @cached_property
-    def http_client(self):
+    def http_client(self) -> VonageHTTPClient:
         return VonageHTTPClient(self.api_key, self.api_secret, self.base_url)
 
-    async def request_otp(self, phone_number: PhoneNumberValidator) -> str:
+    def _get_otp_request_payload(self, phone_number) -> dict:
         request_data = {
-            "brand": "YourBrandName",
+            "brand": "Test",
             "workflow": [{"channel": "sms", "to": phone_number}],
         }
+        return request_data
 
-        response = self.http_client.post_request(
-            endpoint=self.url_map["new_request"], data=request_data
+    async def request_otp(self, phone_number: PhoneNumber) -> str:
+        request_data = self._get_otp_request_payload(phone_number)
+
+        response = await self.http_client.post_request(
+            endpoint="/verify", data=request_data
         )
-        if response.status_code == 200:
+        if response.is_success:
             return response.json()["request_id"]
         else:
             message = response.json().get("detail", "Unknown error")
@@ -64,11 +71,11 @@ class VonageVerifyAPIManager:
 
     async def verify_otp(self, request_id: str, otp_code: str) -> bool:
         request_data = {"code": otp_code}
-        response = self.http_client.post_request(
-            endpoint=self.url_map["verify_request"] + f"/{request_id}",
+        response = await self.http_client.post_request(
+            endpoint=f"/verify/{request_id}",
             data=request_data,
         )
-        if response.status_code == 200:
+        if response.is_success:
             return
         else:
             message = response.json().get("detail", "Unknown error")

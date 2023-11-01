@@ -20,7 +20,10 @@ async def test_request_otp_happy_flow(http_client_mock, vonage_verify_manager_mo
     mock_response = Response(200)
     mock_response.json = mock.Mock(return_value={"request_id": "1234"})
 
-    http_client_mock.post_request.return_value = mock_response
+    async def mocked_post_request(endpoint, data):
+        return mock_response
+
+    http_client_mock.post_request.side_effect = mocked_post_request
 
     phone_number = "+48666777888"
     request_id = await vonage_verify_manager_mock.request_otp(phone_number)
@@ -32,9 +35,13 @@ async def test_request_otp_happy_flow(http_client_mock, vonage_verify_manager_mo
 @mock.patch.object(VonageVerifyAPIManager, "http_client")
 async def test_request_otp_failure(http_client_mock, vonage_verify_manager_mock):
     mock_response = Response(404)
-    mock_response.json = mock.Mock(return_value={"detail": "Error detail"})
+    mock_response.json = mock.Mock(return_value={"request_id": "1234"})
 
-    http_client_mock.post_request.return_value = mock_response
+    async def mocked_post_request(endpoint, data):
+        return mock_response
+
+    http_client_mock.post_request.side_effect = mocked_post_request
+
     phone_number = "+48666777888"
     with pytest.raises(OTPCodeCreationError):
         await vonage_verify_manager_mock.request_otp(phone_number)
@@ -46,7 +53,10 @@ async def test_verify_otp_failure(http_client_mock, vonage_verify_manager_mock):
     mock_response = Response(404)
     mock_response.json = mock.Mock(return_value={"detail": "Error detail"})
 
-    http_client_mock.post_request.return_value = mock_response
+    async def mocked_post_request(endpoint, data):
+        return mock_response
+
+    http_client_mock.post_request.side_effect = mocked_post_request
 
     request_id = "123456"
     otp_code = "1234"
@@ -61,7 +71,10 @@ async def test_verify_otp_happy_flow(http_client_mock, vonage_verify_manager_moc
     mock_response = Response(200)
     mock_response.json = mock.Mock(return_value=None)
 
-    http_client_mock.post_request.return_value = mock_response
+    async def mocked_post_request(endpoint, data):
+        return mock_response
+
+    http_client_mock.post_request.side_effect = mocked_post_request
 
     request_id = "123456"
     otp_code = "1234"
