@@ -17,6 +17,7 @@ class PhoneValidationMixin:
         phone_number = serializers.CharField()
     ```
     """
+
     @validator("phone_number", pre=True)
     def strip_plus_sign(cls, value):
         value = value.lstrip("+")
@@ -39,6 +40,7 @@ class PhoneNumber(BaseModel, PhoneValidationMixin):
     phone_number : str
         The phone number to be validated.
     """
+
     phone_number: str
 
 
@@ -53,5 +55,6 @@ class VerifyRequestData(BaseModel, PhoneValidationMixin):
     otp_code : str
         The OTP code to be used for verification.
     """
+
     phone_number: str
     otp_code: str

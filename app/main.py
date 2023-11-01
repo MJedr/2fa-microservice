@@ -3,13 +3,13 @@ from api import router as api_router
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
+
 app = FastAPI()
 
 
 def create_app():
     """Factory function for creating an app instance"""
     app = FastAPI()
-    load_dotenv("app/.env")
     register_routers(app)
     return app
 

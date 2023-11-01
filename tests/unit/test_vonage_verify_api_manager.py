@@ -80,4 +80,4 @@ async def test_verify_otp_happy_flow(http_client_mock, vonage_verify_manager_moc
     otp_code = "1234"
     result = await vonage_verify_manager_mock.verify_otp(request_id, otp_code)
 
-    assert not result
+    assert result

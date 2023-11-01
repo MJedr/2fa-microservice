@@ -5,13 +5,13 @@ from main import app
 
 
 def scrub_phone_number(request):
-    request.body = ''
+    request.body = ""
     return request
 
 
 @pytest.mark.vcr(
     filter_headers=["authorization", "Set-Cookie"],
-    before_record_request=scrub_phone_number
+    before_record_request=scrub_phone_number,
 )
 def test_integration_init_and_verify_happy_flow(clean_redis):
     client = TestClient(app)
@@ -43,31 +43,33 @@ def test_integration_init_and_verify_happy_flow(clean_redis):
 
 @pytest.mark.vcr(
     filter_headers=["authorization", "Set-Cookie"],
-    before_record_request=scrub_phone_number
+    before_record_request=scrub_phone_number,
 )
 def test_integration_2fa_init_not_authenticated(clean_redis):
     client = TestClient(app)
     init_response = client.post("/2fa/init", json={"phone_number": "+12345678"})
 
     assert init_response.status_code == 400
-    assert init_response.json() == {'detail': "Can't create OTP code!"}
+    assert init_response.json() == {"detail": "Can't create OTP code!"}
 
 
 @pytest.mark.vcr(
     filter_headers=["authorization", "Set-Cookie"],
-    before_record_request=scrub_phone_number
+    before_record_request=scrub_phone_number,
 )
 def test_integration_2fa_verify_not_authenticated(clean_redis):
     client = TestClient(app)
-    init_response = client.post("/2fa/verify", json={"phone_number": "+12345678", "otp_code": '1234'})
+    init_response = client.post(
+        "/2fa/verify", json={"phone_number": "+12345678", "otp_code": "1234"}
+    )
 
     assert init_response.status_code == 400
-    assert init_response.json() == {'detail': 'Missing or expired Vonage request ID!'}
+    assert init_response.json() == {"detail": "Missing or expired Vonage request ID!"}
 
 
 @pytest.mark.vcr(
     filter_headers=["authorization", "Set-Cookie"],
-    before_record_request=scrub_phone_number
+    before_record_request=scrub_phone_number,
 )
 def test_integration_init_and_verify_2fa_wrong_otp_code(clean_redis):
     client = TestClient(app)
@@ -83,4 +85,4 @@ def test_integration_init_and_verify_2fa_wrong_otp_code(clean_redis):
     )
 
     assert verify_response.status_code == 400
-    assert verify_response.json() == {'detail': 'Provided OTP code is not valid'}
+    assert verify_response.json() == {"detail": "Provided OTP code is not valid"}

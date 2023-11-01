@@ -10,67 +10,41 @@ logger = logging.getLogger(__name__)
 
 
 class VonageHTTPClient:
-    def __init__(self, api_key: str, api_secret: str, base_url: str):
+    def __init__(self, base_url: str, api_key: str, api_secret: str):
+        self.base_url = base_url
         self.api_key = api_key
         self.api_secret = api_secret
-        self.base_url = base_url
 
-    class VonageVerifyApiManager:
+    async def post_request(self, endpoint: str, data: dict) -> Response:
         """
-        A class used to manage Vonage Verify API requests.
+        Sends a POST request to the Vonage Verify API with the given endpoint and data.
 
-        ...
-
-        Attributes
+        Parameters
         ----------
-        base_url : str
-            the base URL of the Vonage Verify API
-        api_key : str
-            the API key used to authenticate requests
-        api_secret : str
-            the API secret used to authenticate requests
+        endpoint : str
+            the endpoint to send the request to
+        data : dict
+            the data to include in the request body
 
-        Methods
+        Returns
         -------
-        post_request(endpoint: str, data: dict) -> Response:
-            Sends a POST request to the Vonage Verify API with the given endpoint and data.
+        Response
+            the response object returned by the Vonage Verify API
 
         """
+        headers = {
+            "Content-Type": "application/json",
+        }
 
-        def __init__(self, base_url: str, api_key: str, api_secret: str):
-            self.base_url = base_url
-            self.api_key = api_key
-            self.api_secret = api_secret
-
-        async def post_request(self, endpoint: str, data: dict) -> Response:
-            """
-            Sends a POST request to the Vonage Verify API with the given endpoint and data.
-
-            Parameters
-            ----------
-            endpoint : str
-                the endpoint to send the request to
-            data : dict
-                the data to include in the request body
-
-            Returns
-            -------
-            Response
-                the response object returned by the Vonage Verify API
-
-            """
-            headers = {
-                "Content-Type": "application/json",
-            }
-
-            async with AsyncClient() as client:
-                response = await client.post(
-                    f"{self.base_url}{endpoint}",
-                    headers=headers,
-                    json=data,
-                    auth=(self.api_key, self.api_secret),
-                )
-                return response
+        async with AsyncClient() as client:
+            print(f"Posting to {self.base_url}{endpoint}")
+            response = await client.post(
+                f"{self.base_url}{endpoint}",
+                headers=headers,
+                json=data,
+                auth=(self.api_key, self.api_secret),
+            )
+            return response
 
 
 class VonageVerifyAPIManager:
@@ -85,15 +59,15 @@ class VonageVerifyAPIManager:
         Initializes a new instance of the VonageVerifyAPIManager class.
 
         Args:
-            api_key (str): The Vonage API key to use. If not provided, the value is read from the VONAGE_API_KEY environment variable.
-            api_secret (str): The Vonage API secret to use. If not provided, the value is read from the VONAGE_API_SECRET environment variable.
-            root_vonage_url (str): The root URL of the Vonage API to use. If not provided, the value is read from the VONAGE_API_ROOT_URL environment variable.
-            brand_name (str): The name of the brand to use when sending verification messages. If not provided, the value is read from the VONAGE_API_BRAND_NAME environment variable.
+            api_key (str): The Vonage API key to use.
+            api_secret (str): The Vonage API secret to use.
+            root_vonage_url (str): The root URL of the Vonage API to use.
+            brand_name (str): The name of the brand to use when sending verification messages.
         """
-        self.api_key = api_key or os.getenv("VONAGE_API_KEY")
-        self.api_secret = api_secret or os.getenv("VONAGE_API_SECRET")
-        self.base_url = root_vonage_url or os.getenv("VONAGE_API_ROOT_URL")
-        self.brand_name = brand_name or os.getenv("VONAGE_API_BRAND_NAME")
+        self.api_key = api_key
+        self.api_secret = api_secret
+        self.base_url = root_vonage_url
+        self.brand_name = brand_name
 
     @cached_property
     def http_client(self) -> VonageHTTPClient:
@@ -102,7 +76,9 @@ class VonageVerifyAPIManager:
 
         :return: An instance of VonageHTTPClient.
         """
-        return VonageHTTPClient(self.api_key, self.api_secret, self.base_url)
+        return VonageHTTPClient(
+            api_key=self.api_key, api_secret=self.api_secret, base_url=self.base_url
+        )
 
     def _get_otp_request_payload(self, phone_number) -> dict:
         """

@@ -1,6 +1,13 @@
 import os
 from vonage_verify_api_manager import VonageVerifyAPIManager
 import redis
+from config import Settings
+from functools import lru_cache
+
+
+@lru_cache
+def get_settings():
+    return Settings()
 
 
 def get_vonage_api_manager():
@@ -10,7 +17,13 @@ def get_vonage_api_manager():
     Returns:
     An instance of the VonageVerifyAPIManager class.
     """
-    vonage_manager = VonageVerifyAPIManager()
+    settings = get_settings()
+    vonage_manager = VonageVerifyAPIManager(
+        api_key=settings.VONAGE_API_KEY,
+        api_secret=settings.VONAGE_API_SECRET,
+        root_vonage_url=settings.VONAGE_API_ROOT_URL,
+        brand_name=settings.VONAGE_API_BRAND_NAME,
+    )
     return vonage_manager
 
 
@@ -20,9 +33,11 @@ def get_redis_client():
 
     :return: Redis client instance.
     """
+    settings = get_settings()
     client = redis.StrictRedis(
-        host=os.getenv('REDIS_CLIENT_HOST', 'localhost'),
-        port=os.getenv('REDIS_CLIENT_PORT', '6379'),
-        db=0
+        host=settings.REDIS_CLIENT_HOST,
+        port=settings.REDIS_CLIENT_PORT,
+        decode_responses=True,
+        db=0,
     )
     return client
