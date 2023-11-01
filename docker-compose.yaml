@@ -1,0 +1,8 @@
+version: '2.1'
+services:
+  redis:
+    image: redis
+    restart: 'always'
+    read_only: true
+    ports:
+      - '6379:6379'
