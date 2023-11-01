@@ -2,9 +2,8 @@
 A microservice providing 2FA
 
 
-# TODO: restrucutre setting - use config.py
+# TODO:
 # endpoints - rethink names
-# dockerfile
 # cicd
 # readme & docs
 # check async usage
@@ -14,4 +13,3 @@ A microservice providing 2FA
 # authentication to the microservice?
 # name of the app root
 # tencacity retry?
-

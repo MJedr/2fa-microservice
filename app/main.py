@@ -1,10 +1,6 @@
 import uvicorn
 from api import router as api_router
-from dotenv import load_dotenv
 from fastapi import FastAPI
-
-
-app = FastAPI()
 
 
 def create_app():

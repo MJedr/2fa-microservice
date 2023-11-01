@@ -5,7 +5,8 @@ from exceptions import (
 )
 from fastapi import APIRouter
 from serializers import PhoneNumber, VerifyRequestData
-from utils import get_redis_client, get_vonage_api_manager
+from utils import get_redis_client, get_vonage_api_manager, get_settings
+
 
 redis_client = get_redis_client()
 router = APIRouter()
@@ -25,11 +26,15 @@ async def initiate_2fa(phone_number: PhoneNumber):
     Returns:
         dict: A dictionary containing a message indicating that the OTP has been sent for verification.
     """
+    settings = get_settings()
     validated_phone_number = phone_number.phone_number
     try:
         manager = get_vonage_api_manager()
         verification_id = await manager.request_otp(validated_phone_number)
         redis_client.set(validated_phone_number, verification_id)
+        redis_client.expire(
+            validated_phone_number, settings.REDIS_CLIENT_KEY_EXPIRATION_SEC
+        )
         return {"message": "OTP sent for verification"}
     except OTPCodeCreationError:
         raise

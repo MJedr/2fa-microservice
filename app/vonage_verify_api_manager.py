@@ -37,7 +37,6 @@ class VonageHTTPClient:
         }
 
         async with AsyncClient() as client:
-            print(f"Posting to {self.base_url}{endpoint}")
             response = await client.post(
                 f"{self.base_url}{endpoint}",
                 headers=headers,
