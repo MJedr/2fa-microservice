@@ -31,7 +31,7 @@ class VonageHTTPClient:
 
 
 class VonageVerifyAPIManager:
-    def __init__(self, api_key: str, api_secret: str, root_vonage_url: str) -> None:
+    def __init__(self, api_key: str, api_secret: str, root_vonage_url: str = None) -> None:
         self.api_key = api_key
         self.api_secret = api_secret
         self.base_url = root_vonage_url or os.getenv("ROOT_VONAGE_URL")

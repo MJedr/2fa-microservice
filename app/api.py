@@ -6,10 +6,9 @@ from exceptions import (
     MissingRequestIDException,
     OTPCodeCreationError,
 )
-from fastapi import HTTPException
+from fastapi import HTTPException, APIRouter
 from httpx import Request
-from main import app
-from validators import PhoneNumberValidator
+from validators import PhoneNumberValidator, VerifyRequestData
 from vonage_verify_api_manager import VonageVerifyAPIManager
 
 redis_client = redis.StrictRedis(host="localhost", port=6379, db=0)
@@ -17,28 +16,30 @@ vonage_manager = VonageVerifyAPIManager(
     api_key=os.getenv("VONAGE_API_KEY"), api_secret=os.getenv("VONAGE_API_SECRET")
 )
 
+router = APIRouter()
 
-@app.post("/2fa/init/{user_identifier}")
-async def initiate_2fa(phone_number: PhoneNumberValidator) -> Request:
+@router.post("/init")
+async def initiate_2fa(phone_number: PhoneNumberValidator):
     try:
         verification_id = vonage_manager.request_otp(phone_number)
+        # TODO: sanitaze phone nr somehow
         redis_client.set(verification_id, phone_number)
         return {"message": "OTP sent for verification"}
     except OTPCodeCreationError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.detail)
 
 
-@app.post("/2fa/verify/{verification_id}")
+@router.post("/verify")
 async def verify_2fa(
-    user_identifier: str,
-    otp_code: str,
+     request_data: VerifyRequestData
 ):
-    request_id = redis_client.get(user_identifier)
+
+    request_id = redis_client.get(request_data.phone_number)
 
     if not request_id:
         raise MissingRequestIDException()
     try:
-        vonage_manager.verify_otp(otp_code, request_id)
+        vonage_manager.verify_otp(request_data.otp_code, request_id)
         return {"message": "2FA verification successful"}
     except InvalidOTPCodeError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.detail)
