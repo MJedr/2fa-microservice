@@ -19,7 +19,7 @@ interactions:
     method: POST
     uri: http://testserver/2fa/verify
   response:
-    content: '{"detail":"Incorrect or expired Vonage request ID!"}'
+    content: '{"detail":"Missing or expired Vonage request ID!"}'
     headers:
       content-length:
       - '52'

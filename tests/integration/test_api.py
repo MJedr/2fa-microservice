@@ -62,7 +62,7 @@ def test_integration_2fa_verify_not_authenticated(clean_redis):
     init_response = client.post("/2fa/verify", json={"phone_number": "+12345678", "otp_code": '1234'})
 
     assert init_response.status_code == 400
-    assert init_response.json() == {'detail': 'Incorrect or expired Vonage request ID!'}
+    assert init_response.json() == {'detail': 'Missing or expired Vonage request ID!'}
 
 
 @pytest.mark.vcr(
