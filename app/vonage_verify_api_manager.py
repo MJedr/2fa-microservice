@@ -1,20 +1,34 @@
 import logging
-import os
+from tenacity import retry, stop_after_attempt, retry_if_exception_type
 from functools import cached_property
 
 from exceptions import InvalidOTPCodeError, OTPCodeCreationError
-from httpx import AsyncClient, Response
+from httpx import AsyncClient, Response, ConnectTimeout
 from serializers import PhoneNumber
 
 logger = logging.getLogger(__name__)
 
 
 class VonageHTTPClient:
+    """
+    A client for making HTTP requests to the Vonage Verify API.
+
+    Parameters
+    ----------
+    base_url : str
+        The base URL for the Vonage Verify API.
+    api_key : str
+        The API key to use for authentication.
+    api_secret : str
+        The API secret to use for authentication.
+    """
+
     def __init__(self, base_url: str, api_key: str, api_secret: str):
         self.base_url = base_url
         self.api_key = api_key
         self.api_secret = api_secret
 
+    @retry(retry=retry_if_exception_type(ConnectTimeout), stop=stop_after_attempt(5))
     async def post_request(self, endpoint: str, data: dict) -> Response:
         """
         Sends a POST request to the Vonage Verify API with the given endpoint and data.
