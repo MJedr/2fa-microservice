@@ -1,0 +1,10 @@
+name: Push main
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:  # normally, it should contain also deployment job
+  test:
+    uses: ./.github/workflows/tests.yaml
