@@ -61,15 +61,18 @@ poetry run pytest tests
 ```
 Disclaimer: running integration tests require redis container to be running.
 
+## Contribute
+Since I would like to keep my code readable, please use the `pre-commit` set up with `.pre-commit-config.yaml` config.
+
 ## What else could be done
-* Authentication
+* Authentication:
 It wasn't listed as a part of requirements, but might be needed. There are various methods, including defining access rules inside of the k8s cluster (with ingress), so the implementation strongly depends on the business requirements.
 
-* Authentication to Vonage
+* Authentication to Vonage:
 In real life scenario, I would prefer to generate token (possible with vonage api).
 
-* Deployment workflow
+* Deployment workflow:
 Depending on the container repository and business requirements, there should be a workflow that builds and pushes image to repository.
 
-* Improved phone validation
+* Improved phone validation:
 Depending on the business requirements, I would add a better validation.
