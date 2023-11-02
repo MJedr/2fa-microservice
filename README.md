@@ -17,13 +17,12 @@ poetry install
 You're done! Now you can run the application and test it.
 
 ### Docker
-The setup can be done without installing anything, using docker-compose.
-
+To avoid installing any dependencies locally you can run containerised version of this microservice using docker-compose.
 
 ## Running application
-In order to make everything work, setup all the required secrets in `envs/.local` dotenv file (for local development) ot in `envs/.docker` if you're planning to run the application with docker.
+In order to make everything work, setup all the required secrets in `/app/envs/.local` dotenv file (for local development) or in `/app/envs/.docker` if you're planning to run the application with docker.
 ### Local
-No matter you use docker-compose or you run server locally, you have to make redis container running. To do so, run:
+No matter you use docker-compose or you run server locally, you need to ensure that redis container is running. To do so, run:
 ```bash
 docker-compose up -d redis
 ```
@@ -40,20 +39,21 @@ docker-compose up -d
 ```
 The application should be avilable on the port 8000.
 
-### 2FA
+## Usage
 To perform 2FA, firstly call the application on
 ```bash
-curl --location 'http://0.0.0.0:8000/2fa/init' \
+curl -v --location 'http://0.0.0.0:8000/2fa/init' \
 --header 'Content-Type: application/json' \
---data '{"phone_number": $(PHONE_NUMBER)}'
+--data '{"phone_number":"'"$PHONE_NUMBER"'" }'
 ```
 Then you should receive the OTP to the `PHONE_NUMBER`. To finish 2FA, verify the code calling:
 ```bash
 curl --location 'http://0.0.0.0:8000/2fa/verify' \
 --header 'Content-Type: application/json' \
---data '{"phone_number": $(PHONE_NUMBER), "otp_code": $(OTP_CODE)}'
+--data '{"phone_number": "'"$PHONE_NUMBER"'", "otp_code": "'"$OTP_CODE"'"}'
 ```
 where `OTP_CODE` is the OTP code sent to the `PHONE_NUMBER`.
+
 ## Testing
 To run tests, you have to have local setup done. Then, you can exec:
 ```bash
@@ -64,7 +64,7 @@ Disclaimer: running integration tests require redis container to be running.
 ## Contribute
 Since I would like to keep my code readable, please use the `pre-commit` set up with `.pre-commit-config.yaml` config.
 
-## What else could be done
+## Areas for improvements
 * Authentication:
 It wasn't listed as a part of requirements, but might be needed. There are various methods, including defining access rules inside of the k8s cluster (with ingress), so the implementation strongly depends on the business requirements.
 
@@ -72,7 +72,7 @@ It wasn't listed as a part of requirements, but might be needed. There are vario
 In real life scenario, I would prefer to generate token (possible with vonage api).
 
 * Deployment workflow:
-Depending on the container repository and business requirements, there should be a workflow that builds and pushes image to repository.
+Depending on the container repository and business requirements, there should be a workflow that builds and pushes image to the repository.
 
 * Improved phone validation:
 Depending on the business requirements, I would add a better validation.
