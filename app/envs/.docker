@@ -1,0 +1,3 @@
+VONAGE_API_KEY='test'
+VONAGE_API_SECRET='test'
+REDIS_CLIENT_HOST='redis'

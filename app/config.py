@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import load_dotenv
 
 
-load_dotenv("app/env/.env-local")
+load_dotenv("app/envs/.local")
 
 
 class Settings(BaseSettings):
