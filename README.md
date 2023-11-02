@@ -1,5 +1,5 @@
 # 2fa-microservice
-A microservice providing 2FA with [Vonage]().
+A microservice providing 2FA with [Vonage](https://developer.vonage.com/en/home).
 
 
 ## Installation
@@ -40,6 +40,20 @@ docker-compose up -d
 ```
 The application should be avilable on the port 8000.
 
+### 2FA
+To perform 2FA, firstly call the application on
+```bash
+curl --location 'http://0.0.0.0:8000/2fa/init' \
+--header 'Content-Type: application/json' \
+--data '{"phone_number": $(PHONE_NUMBER)}'
+```
+Then you should receive the OTP to the `PHONE_NUMBER`. To finish 2FA, verify the code calling:
+```bash
+curl --location 'http://0.0.0.0:8000/2fa/verify' \
+--header 'Content-Type: application/json' \
+--data '{"phone_number": $(PHONE_NUMBER), "otp_code": $(OTP_CODE)}'
+```
+where `OTP_CODE` is the OTP code sent to the `PHONE_NUMBER`.
 ## Testing
 To run tests, you have to have local setup done. Then, you can exec:
 ```bash
@@ -56,8 +70,6 @@ In real life scenario, I would prefer to generate token (possible with vonage ap
 
 * Deployment workflow
 Depending on the container repository and business requirements, there should be a workflow that builds and pushes image to repository.
+
 * Improved phone validation
 Depending on the business requirements, I would add a better validation.
-
-
-# tencacity retry?

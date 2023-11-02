@@ -7,6 +7,9 @@ from functools import lru_cache
 
 @lru_cache
 def get_settings():
+    """
+    Returns an instance of the Settings class.
+    """
     return Settings()
 
 
